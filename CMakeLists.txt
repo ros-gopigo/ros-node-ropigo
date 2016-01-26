@@ -6,6 +6,7 @@ project(ropigo)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
+  smart_battery_msgs
   roscpp
   gopigo
 )

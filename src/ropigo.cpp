@@ -1,5 +1,6 @@
 #include <ros/ros.h>
 #include <geometry_msgs/Twist.h>
+#include <smart_battery_msgs/SmartBatteryStatus.h>
 
 extern "C" {
 #include <gopigo.h>
@@ -52,10 +53,25 @@ int main(int argc, char **argv) {
     init();
 
     ROS_INFO("GoPiGo Firmware Version: %d\n",fw_ver());
+    ROS_INFO("GoPiGo Board Version: %d\n",brd_rev());
 
     ros::init(argc, argv, "ropigo");
     ros::NodeHandle n;
-    ros::Subscriber sub = n.subscribe("cmd_vel", 1000, cmdCallback);
+    ros::Subscriber cmd = n.subscribe("cmd_vel", 1000, cmdCallback);
+    ros::Publisher battery_pub = n.advertise<smart_battery_msgs::SmartBatteryStatus>("battery",1);
+
+    ros::Rate loop(1);
+
+    while(ros::ok()) {
+        smart_battery_msgs::SmartBatteryStatus battery;
+        battery.voltage = volt();
+
+        battery_pub.publish(battery);
+
+        ros::spinOnce();
+        loop.sleep();
+    }
+
     ros::spin();
     return 0;
 }
