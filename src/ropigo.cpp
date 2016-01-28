@@ -67,7 +67,7 @@ int main(int argc, char **argv) {
     ros::Publisher lwheel_pub = n.advertise<std_msgs::Int16>("lwheel",1);
     ros::Publisher rwheel_pub = n.advertise<std_msgs::Int16>("rwheel",1);
 
-    ros::Rate loop(1);
+    ros::Rate loop(10);
 
     while(ros::ok()) {
         smart_battery_msgs::SmartBatteryStatus battery;
