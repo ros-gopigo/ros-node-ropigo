@@ -1,4 +1,5 @@
 #include <ros/ros.h>
+#include <std_msgs/Int16.h>
 #include <geometry_msgs/Twist.h>
 #include <smart_battery_msgs/SmartBatteryStatus.h>
 
@@ -57,16 +58,30 @@ int main(int argc, char **argv) {
 
     ros::init(argc, argv, "ropigo");
     ros::NodeHandle n;
+
     ros::Subscriber cmd = n.subscribe("cmd_vel", 1000, cmdCallback);
+
     ros::Publisher battery_pub = n.advertise<smart_battery_msgs::SmartBatteryStatus>("battery",1);
+
+    // odometry
+    ros::Publisher lwheel_pub = n.advertise<std_msgs::Int16>("lwheel",1);
+    ros::Publisher rwheel_pub = n.advertise<std_msgs::Int16>("rwheel",1);
 
     ros::Rate loop(1);
 
     while(ros::ok()) {
         smart_battery_msgs::SmartBatteryStatus battery;
+        std_msgs::Int16 lwheel, rwheel;
+
         battery.voltage = volt();
 
+        lwheel.data = (int16_t)enc_read(0);
+        rwheel.data = (int16_t)enc_read(1);
+
+        // publish topics
         battery_pub.publish(battery);
+        lwheel_pub.publish(lwheel);
+        rwheel_pub.publish(rwheel);
 
         ros::spinOnce();
         loop.sleep();
