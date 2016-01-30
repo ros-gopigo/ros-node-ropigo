@@ -21,7 +21,10 @@ void cmdCallback(const geometry_msgs::Twist::ConstPtr& msg) {
 
     // ignore small values
     if(mag <= 0.1) {
-        stop();
+        ROS_DEBUG("Not moving");
+        if( stop() != 1) {
+            ROS_WARN("Could not stop!");
+        }
         return;
     }
 
@@ -45,8 +48,13 @@ void cmdCallback(const geometry_msgs::Twist::ConstPtr& msg) {
 
     ROS_DEBUG("writing values (motor1, motor2): (%i)%i, (%i)%i", std::max(0, int(m1/std::abs(m1))), int(m1*255), std::max(0, int(m2/std::abs(m2))), int(m2*255));
 
-    motor1(m1>=0, std::abs(int(m1*255)));
-    motor2(m2>=0, std::abs(int(m2*255)));
+    if( motor1(m1>=0, std::abs(int(m1*255))) != 1 ) {
+        ROS_WARN("Error when writing to motor 1");
+    }
+
+    if( motor2(m2>=0, std::abs(int(m2*255))) != 1) {
+        ROS_WARN("Error when writing to motor 2");
+    }
 }
 
 int main(int argc, char **argv) {
