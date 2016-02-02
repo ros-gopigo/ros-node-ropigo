@@ -2,6 +2,7 @@
 #include <std_msgs/Int16.h>
 #include <geometry_msgs/Twist.h>
 #include <smart_battery_msgs/SmartBatteryStatus.h>
+#include <ropigo/SimpleWrite.h>
 
 extern "C" {
 #include <gopigo.h>
@@ -57,6 +58,20 @@ void cmdCallback(const geometry_msgs::Twist::ConstPtr& msg) {
     }
 }
 
+bool enc_enable(ropigo::SimpleWrite::Request &req, ropigo::SimpleWrite::Response &res) {
+    int ret = enable_encoders();
+    if(ret!=1)
+        ROS_WARN("Error enabling encoders!");
+    return ret;
+}
+
+bool enc_disable(ropigo::SimpleWrite::Request &req, ropigo::SimpleWrite::Response &res) {
+    int ret = disable_encoders();
+    if(ret!=1)
+        ROS_WARN("Error disabling encoders!");
+    return ret;
+}
+
 int main(int argc, char **argv) {
 
     init();
@@ -74,6 +89,11 @@ int main(int argc, char **argv) {
     // odometry
     ros::Publisher lwheel_pub = n.advertise<std_msgs::Int16>("lwheel",1);
     ros::Publisher rwheel_pub = n.advertise<std_msgs::Int16>("rwheel",1);
+
+    /// Services
+    // Encoder
+    ros::ServiceServer enc_enable_srv = n.advertiseService("encoder_enable", enc_enable);
+    ros::ServiceServer enc_disable_srv = n.advertiseService("encoder_disable", enc_disable);
 
     ros::Rate loop(10);
 
