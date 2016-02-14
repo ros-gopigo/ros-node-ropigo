@@ -8,11 +8,10 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   smart_battery_msgs
   roscpp
-  gopigo
   message_generation
 )
 
-#find_package(gopigo REQUIRED)
+find_package(gopigo REQUIRED)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -149,7 +148,10 @@ include_directories(
 add_executable(ropigo_node
   src/ropigo.cpp
 )
-target_link_libraries(ropigo_node ${catkin_LIBRARIES})
+target_link_libraries(ropigo_node
+  ${catkin_LIBRARIES}
+  ${gopigo_LIBRARIES}
+)
 
 #############
 ## Install ##
