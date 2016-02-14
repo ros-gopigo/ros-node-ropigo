@@ -72,6 +72,30 @@ bool enc_disable(ropigo::SimpleWrite::Request &req, ropigo::SimpleWrite::Respons
     return ret;
 }
 
+bool led_enable_left(ropigo::SimpleWrite::Request &req, ropigo::SimpleWrite::Response &res) {
+    int ret = led_on(1);
+    if(ret!=1) ROS_WARN("Error enabling LED left!");
+    return ret;
+}
+
+bool led_enable_right(ropigo::SimpleWrite::Request &req, ropigo::SimpleWrite::Response &res) {
+    int ret = led_on(0);
+    if(ret!=1) ROS_WARN("Error enabling LED right!");
+    return ret;
+}
+
+bool led_disable_left(ropigo::SimpleWrite::Request &req, ropigo::SimpleWrite::Response &res) {
+    int ret = led_off(1);
+    if(ret!=1) ROS_WARN("Error disabling LED left!");
+    return ret;
+}
+
+bool led_disable_right(ropigo::SimpleWrite::Request &req, ropigo::SimpleWrite::Response &res) {
+    int ret = led_off(0);
+    if(ret!=1) ROS_WARN("Error disabling LED right!");
+    return ret;
+}
+
 int main(int argc, char **argv) {
 
     init();
@@ -94,6 +118,11 @@ int main(int argc, char **argv) {
     // Encoder
     ros::ServiceServer enc_enable_srv = n.advertiseService("encoder_enable", enc_enable);
     ros::ServiceServer enc_disable_srv = n.advertiseService("encoder_disable", enc_disable);
+    // LED
+    ros::ServiceServer led_left_enable_srv = n.advertiseService("led_left_enable", led_enable_left);
+    ros::ServiceServer led_left_disable_srv = n.advertiseService("led_left_disable", led_disable_left);
+    ros::ServiceServer led_right_enable_srv = n.advertiseService("led_right_enable", led_enable_right);
+    ros::ServiceServer led_right_disable_srv = n.advertiseService("led_right_disable", led_disable_right);
 
     ros::Rate loop(10);
 
