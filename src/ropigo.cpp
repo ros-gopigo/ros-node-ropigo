@@ -60,48 +60,56 @@ void cmdCallback(const geometry_msgs::Twist::ConstPtr& msg) {
 
 bool enc_enable(ropigo::SimpleWrite::Request &req, ropigo::SimpleWrite::Response &res) {
     int ret = enable_encoders();
-    if(ret!=1)
-        ROS_WARN("Error enabling encoders!");
-    return ret;
+    res.status = ret;
+    if(ret!=1) ROS_WARN("Error enabling encoders!");
+    return ret==1;
 }
 
 bool enc_disable(ropigo::SimpleWrite::Request &req, ropigo::SimpleWrite::Response &res) {
     int ret = disable_encoders();
-    if(ret!=1)
-        ROS_WARN("Error disabling encoders!");
-    return ret;
+    res.status = ret;
+    if(ret!=1) ROS_WARN("Error disabling encoders!");
+    return ret==1;
 }
 
 bool led_enable_left(ropigo::SimpleWrite::Request &req, ropigo::SimpleWrite::Response &res) {
     int ret = led_on(1);
+    res.status = ret;
     if(ret!=1) ROS_WARN("Error enabling LED left!");
-    return ret;
+    else ROS_INFO("Left LED enabled");
+    return ret==1;
 }
 
 bool led_enable_right(ropigo::SimpleWrite::Request &req, ropigo::SimpleWrite::Response &res) {
     int ret = led_on(0);
+    res.status = ret;
     if(ret!=1) ROS_WARN("Error enabling LED right!");
-    return ret;
+    else ROS_INFO("Right LED enabled");
+    return ret==1;
 }
 
 bool led_disable_left(ropigo::SimpleWrite::Request &req, ropigo::SimpleWrite::Response &res) {
     int ret = led_off(1);
+    res.status = ret;
     if(ret!=1) ROS_WARN("Error disabling LED left!");
-    return ret;
+    else ROS_INFO("Left LED disabled");
+    return ret==1;
 }
 
 bool led_disable_right(ropigo::SimpleWrite::Request &req, ropigo::SimpleWrite::Response &res) {
     int ret = led_off(0);
+    res.status = ret;
     if(ret!=1) ROS_WARN("Error disabling LED right!");
-    return ret;
+    else ROS_INFO("Right LED disabled");
+    return ret==1;
 }
 
 int main(int argc, char **argv) {
 
     init();
 
-    ROS_INFO("GoPiGo Firmware Version: %d\n",fw_ver());
-    ROS_INFO("GoPiGo Board Version: %d\n",brd_rev());
+    ROS_INFO("GoPiGo Firmware Version: %d",fw_ver());
+    ROS_INFO("GoPiGo Board Version: %d",brd_rev());
 
     ros::init(argc, argv, "ropigo");
     ros::NodeHandle n;
@@ -143,6 +151,8 @@ int main(int argc, char **argv) {
         ros::spinOnce();
         loop.sleep();
     }
+
+    ROS_INFO("Exit.");
 
     ros::spin();
     return 0;
