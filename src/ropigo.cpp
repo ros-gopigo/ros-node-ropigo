@@ -23,7 +23,7 @@ void cmdCallback(const geometry_msgs::Twist::ConstPtr& msg) {
     // ignore small values
     if(mag <= 0.1) {
         ROS_DEBUG("Not moving");
-        if( stop() != 1) {
+        if( motor1(0,0)!=1 || motor2(0,0)!=1 ) {
             ROS_WARN("Could not stop!");
         }
         return;
@@ -114,7 +114,7 @@ int main(int argc, char **argv) {
     ros::init(argc, argv, "ropigo");
     ros::NodeHandle n;
 
-    ros::Subscriber cmd = n.subscribe("cmd_vel", 1000, cmdCallback);
+    ros::Subscriber cmd = n.subscribe("cmd_vel", 0, cmdCallback);
 
     ros::Publisher battery_pub = n.advertise<smart_battery_msgs::SmartBatteryStatus>("battery",1);
 
