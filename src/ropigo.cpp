@@ -36,8 +36,8 @@ void cmdCallback(const geometry_msgs::Twist::ConstPtr& msg) {
     m1 = t/mag * std::abs(t);
     m2 = t/mag * std::abs(t);
 
-    m1 += -r/mag * std::abs(r);
-    m2 += r/mag * std::abs(r);
+    m1 += r/mag * std::abs(r);
+    m2 += -r/mag * std::abs(r);
 
     ROS_DEBUG("m1, m2: %f, %f", m1, m2);
 
