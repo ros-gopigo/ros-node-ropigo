@@ -127,10 +127,10 @@ int main(int argc, char **argv) {
     ros::ServiceServer enc_enable_srv = n.advertiseService("encoder_enable", enc_enable);
     ros::ServiceServer enc_disable_srv = n.advertiseService("encoder_disable", enc_disable);
     // LED
-    ros::ServiceServer led_left_enable_srv = n.advertiseService("led_left_enable", led_enable_left);
-    ros::ServiceServer led_left_disable_srv = n.advertiseService("led_left_disable", led_disable_left);
-    ros::ServiceServer led_right_enable_srv = n.advertiseService("led_right_enable", led_enable_right);
-    ros::ServiceServer led_right_disable_srv = n.advertiseService("led_right_disable", led_disable_right);
+    ros::ServiceServer led_left_enable_srv = n.advertiseService("led_on_left", led_enable_left);
+    ros::ServiceServer led_left_disable_srv = n.advertiseService("led_off_left", led_disable_left);
+    ros::ServiceServer led_right_enable_srv = n.advertiseService("led_on_right", led_enable_right);
+    ros::ServiceServer led_right_disable_srv = n.advertiseService("led_off_right", led_disable_right);
 
     ros::Rate loop(10);
 
