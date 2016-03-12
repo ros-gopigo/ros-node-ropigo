@@ -114,7 +114,7 @@ int main(int argc, char **argv) {
     ros::init(argc, argv, "ropigo");
     ros::NodeHandle n;
 
-    ros::Subscriber cmd = n.subscribe("cmd_vel", 0, cmdCallback);
+    ros::Subscriber cmd = n.subscribe("cmd_vel", 1, cmdCallback);
 
     ros::Publisher battery_pub = n.advertise<smart_battery_msgs::SmartBatteryStatus>("battery",1);
 
@@ -154,6 +154,5 @@ int main(int argc, char **argv) {
 
     ROS_INFO("Exit.");
 
-    ros::spin();
     return 0;
 }
