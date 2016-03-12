@@ -26,6 +26,9 @@ void cmdCallback(const geometry_msgs::Twist::ConstPtr& msg) {
         if( motor1(0,0)!=1 || motor2(0,0)!=1 ) {
             ROS_WARN("Could not stop!");
         }
+        unsigned char speed[2];
+        read_motor_speed(speed);
+        ROS_DEBUG("speed %i, %i", speed[0], speed[1]);
         return;
     }
 
@@ -56,6 +59,10 @@ void cmdCallback(const geometry_msgs::Twist::ConstPtr& msg) {
     if( motor2(m2>=0, std::abs(int(m2*255))) != 1) {
         ROS_WARN("Error when writing to motor 2");
     }
+
+    unsigned char speed[2];
+    read_motor_speed(speed);
+    ROS_DEBUG("speed %i, %i", speed[0], speed[1]);
 }
 
 bool enc_enable(ropigo::SimpleWrite::Request &req, ropigo::SimpleWrite::Response &res) {
