@@ -111,6 +111,14 @@ int main(int argc, char **argv) {
     ROS_INFO("GoPiGo Firmware Version: %d",fw_ver());
     ROS_INFO("GoPiGo Board Version: %d",brd_rev());
 
+    led_on(0);
+    usleep(500000);
+    led_on(1);
+    usleep(500000);
+    led_off(0);
+    usleep(500000);
+    led_off(1);
+
     ros::init(argc, argv, "ropigo");
     ros::NodeHandle n;
 
@@ -151,6 +159,9 @@ int main(int argc, char **argv) {
         ros::spinOnce();
         loop.sleep();
     }
+
+    led_off(0);
+    led_off(1);
 
     ROS_INFO("Exit.");
 
