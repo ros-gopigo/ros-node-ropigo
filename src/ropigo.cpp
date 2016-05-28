@@ -1,8 +1,8 @@
 #include <ros/ros.h>
 #include <std_msgs/Int16.h>
 #include <geometry_msgs/Twist.h>
-#include <smart_battery_msgs/SmartBatteryStatus.h>
 #include <ropigo/SimpleWrite.h>
+#include <sensor_msgs/BatteryState.h>
 
 extern "C" {
 #include <gopigo.h>
@@ -131,7 +131,7 @@ int main(int argc, char **argv) {
 
     ros::Subscriber cmd = n.subscribe("cmd_vel", 1, cmdCallback);
 
-    ros::Publisher battery_pub = n.advertise<smart_battery_msgs::SmartBatteryStatus>("battery",1);
+    ros::Publisher battery_pub = n.advertise<sensor_msgs::BatteryState>("battery",1);
 
     // odometry
     ros::Publisher lwheel_pub = n.advertise<std_msgs::Int16>("lwheel",1);
@@ -150,7 +150,7 @@ int main(int argc, char **argv) {
     ros::Rate loop(10);
 
     while(ros::ok()) {
-        smart_battery_msgs::SmartBatteryStatus battery;
+        sensor_msgs::BatteryState battery;
         std_msgs::Int16 lwheel, rwheel;
 
         battery.voltage = volt();
