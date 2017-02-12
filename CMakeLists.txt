@@ -147,6 +147,7 @@ include_directories(
 add_executable(ropigo_node
   src/ropigo.cpp
 )
+add_dependencies(ropigo_node ${PROJECT_NAME}_gencpp)
 target_link_libraries(ropigo_node
   ${catkin_LIBRARIES}
   ${gopigo_LIBRARIES}
