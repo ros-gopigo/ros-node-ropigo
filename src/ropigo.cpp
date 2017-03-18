@@ -1,14 +1,19 @@
 #include <ros/ros.h>
 #include <std_msgs/Int16.h>
+#include <std_msgs/Float64.h>
 #include <geometry_msgs/Twist.h>
 #include <ropigo/SimpleWrite.h>
 #include <sensor_msgs/BatteryState.h>
+#include <sensor_msgs/JointState.h>
+#include <angles/angles.h>
 
 extern "C" {
 #include <gopigo.h>
 }
 
 #include <cmath>
+
+static ros::Publisher servo_state_pub;
 
 void cmdCallback(const geometry_msgs::Twist::ConstPtr& msg) {
     ROS_DEBUG("-------");
@@ -63,6 +68,17 @@ void cmdCallback(const geometry_msgs::Twist::ConstPtr& msg) {
     unsigned char speed[2];
     read_motor_speed(speed);
     ROS_DEBUG("speed %i, %i", speed[0], speed[1]);
+}
+
+void servoCallback(const std_msgs::Float64 &servo_angle) {
+    // set the servo angle
+    servo(int(angles::to_degrees(servo_angle.data)));
+
+    // publish the same servo angle
+    sensor_msgs::JointState servo_joint;
+    servo_joint.name.push_back("servo");
+    servo_joint.position.push_back(servo_angle.data);
+    servo_state_pub.publish(servo_joint);
 }
 
 bool enc_enable(ropigo::SimpleWrite::Request &/*req*/, ropigo::SimpleWrite::Response &res) {
@@ -130,8 +146,11 @@ int main(int argc, char **argv) {
     ros::NodeHandle n;
 
     ros::Subscriber cmd = n.subscribe("cmd_vel", 1, cmdCallback);
+    ros::Subscriber servo_sub = n.subscribe("servo_cmd", 1, servoCallback);
 
     ros::Publisher battery_pub = n.advertise<sensor_msgs::BatteryState>("battery",1);
+
+    servo_state_pub = n.advertise<sensor_msgs::JointState>("servo_state",1);
 
     // odometry
     ros::Publisher lwheel_pub = n.advertise<std_msgs::Int16>("lwheel",1);
