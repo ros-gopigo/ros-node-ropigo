@@ -65,47 +65,47 @@ void cmdCallback(const geometry_msgs::Twist::ConstPtr& msg) {
     ROS_DEBUG("speed %i, %i", speed[0], speed[1]);
 }
 
-bool enc_enable(ropigo::SimpleWrite::Request &req, ropigo::SimpleWrite::Response &res) {
+bool enc_enable(ropigo::SimpleWrite::Request &/*req*/, ropigo::SimpleWrite::Response &res) {
     int ret = enable_encoders();
-    res.status = ret;
+    res.status = int8_t(ret);
     if(ret!=1) ROS_WARN("Error enabling encoders!");
     return ret==1;
 }
 
-bool enc_disable(ropigo::SimpleWrite::Request &req, ropigo::SimpleWrite::Response &res) {
+bool enc_disable(ropigo::SimpleWrite::Request &/*req*/, ropigo::SimpleWrite::Response &res) {
     int ret = disable_encoders();
-    res.status = ret;
+    res.status = int8_t(ret);
     if(ret!=1) ROS_WARN("Error disabling encoders!");
     return ret==1;
 }
 
-bool led_enable_left(ropigo::SimpleWrite::Request &req, ropigo::SimpleWrite::Response &res) {
+bool led_enable_left(ropigo::SimpleWrite::Request &/*req*/, ropigo::SimpleWrite::Response &res) {
     int ret = led_on(1);
-    res.status = ret;
+    res.status = int8_t(ret);
     if(ret!=1) ROS_WARN("Error enabling LED left!");
     else ROS_INFO("Left LED enabled");
     return ret==1;
 }
 
-bool led_enable_right(ropigo::SimpleWrite::Request &req, ropigo::SimpleWrite::Response &res) {
+bool led_enable_right(ropigo::SimpleWrite::Request &/*req*/, ropigo::SimpleWrite::Response &res) {
     int ret = led_on(0);
-    res.status = ret;
+    res.status = int8_t(ret);
     if(ret!=1) ROS_WARN("Error enabling LED right!");
     else ROS_INFO("Right LED enabled");
     return ret==1;
 }
 
-bool led_disable_left(ropigo::SimpleWrite::Request &req, ropigo::SimpleWrite::Response &res) {
+bool led_disable_left(ropigo::SimpleWrite::Request &/*req*/, ropigo::SimpleWrite::Response &res) {
     int ret = led_off(1);
-    res.status = ret;
+    res.status = int8_t(ret);
     if(ret!=1) ROS_WARN("Error disabling LED left!");
     else ROS_INFO("Left LED disabled");
     return ret==1;
 }
 
-bool led_disable_right(ropigo::SimpleWrite::Request &req, ropigo::SimpleWrite::Response &res) {
+bool led_disable_right(ropigo::SimpleWrite::Request &/*req*/, ropigo::SimpleWrite::Response &res) {
     int ret = led_off(0);
-    res.status = ret;
+    res.status = int8_t(ret);
     if(ret!=1) ROS_WARN("Error disabling LED right!");
     else ROS_INFO("Right LED disabled");
     return ret==1;
@@ -155,8 +155,8 @@ int main(int argc, char **argv) {
 
         battery.voltage = volt();
 
-        lwheel.data = (int16_t)enc_read(0);
-        rwheel.data = (int16_t)enc_read(1);
+        lwheel.data = int16_t(enc_read(0));
+        rwheel.data = int16_t(enc_read(1));
 
         // publish topics
         battery_pub.publish(battery);
