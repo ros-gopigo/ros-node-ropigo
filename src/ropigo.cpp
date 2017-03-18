@@ -179,25 +179,25 @@ int main(int argc, char **argv) {
     while(ros::ok()) {
         ros::Time time = ros::Time::now();
 
+        // battery voltage
         sensor_msgs::BatteryState battery;
-        std_msgs::Int16 lwheel, rwheel;
-
         battery.voltage = volt();
+        battery_pub.publish(battery);
 
+        // wheel encoder
+        std_msgs::Int16 lwheel, rwheel;
         lwheel.data = int16_t(enc_read(0));
         rwheel.data = int16_t(enc_read(1));
+        lwheel_pub.publish(lwheel);
+        rwheel_pub.publish(rwheel);
 
+        // ultrasonic distance
         sensor_msgs::Range us_range;
         us_range.header.stamp = time;
         us_range.radiation_type = sensor_msgs::Range::ULTRASOUND;
         // ultrasonic distance from cm in meter
         us_range.range = us_dist(us_pin) / 100.0f;
         ultrasonic_pub.publish(us_range);
-
-        // publish topics
-        battery_pub.publish(battery);
-        lwheel_pub.publish(lwheel);
-        rwheel_pub.publish(rwheel);
 
         ros::spinOnce();
         loop.sleep();
