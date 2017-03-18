@@ -5,6 +5,7 @@
 #include <ropigo/SimpleWrite.h>
 #include <sensor_msgs/BatteryState.h>
 #include <sensor_msgs/JointState.h>
+#include <sensor_msgs/Range.h>
 #include <angles/angles.h>
 
 extern "C" {
@@ -145,12 +146,19 @@ int main(int argc, char **argv) {
     ros::init(argc, argv, "ropigo");
     ros::NodeHandle n;
 
+    int us_pin;
+    if(!n.getParam("us_pin", us_pin)) {
+        ROS_ERROR("Pin for ultrasonic sensor (parameter 'us_pin') not set!");
+    }
+
     ros::Subscriber cmd = n.subscribe("cmd_vel", 1, cmdCallback);
     ros::Subscriber servo_sub = n.subscribe("servo_cmd", 1, servoCallback);
 
     ros::Publisher battery_pub = n.advertise<sensor_msgs::BatteryState>("battery",1);
 
     servo_state_pub = n.advertise<sensor_msgs::JointState>("servo_state",1);
+
+    ros::Publisher ultrasonic_pub = n.advertise<sensor_msgs::Range>("ultrasonic",1);
 
     // odometry
     ros::Publisher lwheel_pub = n.advertise<std_msgs::Int16>("lwheel",1);
@@ -169,6 +177,8 @@ int main(int argc, char **argv) {
     ros::Rate loop(10);
 
     while(ros::ok()) {
+        ros::Time time = ros::Time::now();
+
         sensor_msgs::BatteryState battery;
         std_msgs::Int16 lwheel, rwheel;
 
@@ -176,6 +186,13 @@ int main(int argc, char **argv) {
 
         lwheel.data = int16_t(enc_read(0));
         rwheel.data = int16_t(enc_read(1));
+
+        sensor_msgs::Range us_range;
+        us_range.header.stamp = time;
+        us_range.radiation_type = sensor_msgs::Range::ULTRASOUND;
+        // ultrasonic distance from cm in meter
+        us_range.range = us_dist(us_pin) / 100.0f;
+        ultrasonic_pub.publish(us_range);
 
         // publish topics
         battery_pub.publish(battery);
