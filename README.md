@@ -1,8 +1,12 @@
 # GoPiGo ROS Node
 ROS node to control GoPiGo robots (http://www.dexterindustries.com/gopigo/).
 
-The node subscribes to _/cmd_vel_ (_geometry_msgs/Twist_ messages) and evaluates linear.x and angular.z to compute speed values for the left and right motor.
+## Installation
+The node requires the GoPiGo driver to be installed either as [catkin package](https://github.com/ros-gopigo/catkin-libgopigo) or [manually](https://github.com/DexterInd/GoPiGo/tree/master/Software/C#dedicated-library).
+The full instructions for building the GoPiGo library and ROS node as catkin packages are located at https://github.com/ros-gopigo/rosinstall-repo.
 
-To build, you also need to install the library ros-lib-gopigo that provides the functions to communicate with the GoPiGo firmware.
+## Usage
 
-To run, publish Twist messages e.g. by the _teleop_twist_joy_ or the _teleop_twist_keyboard_ nodes and run the ropigo_node.
+To control the robot, you need to publish `geometry_msgs/Twist` messages on the `/cmd_vel` topic. Only the `linear.x` and `angular.z` parts of the Twist message are evaluated to compute left and right motor speed.
+
+Twist messages are published for example by the _teleop_twist_joy_ or the _teleop_twist_keyboard_ nodes.
