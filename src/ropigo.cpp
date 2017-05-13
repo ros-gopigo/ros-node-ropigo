@@ -153,7 +153,7 @@ int main(int argc, char **argv) {
 
     ros::Publisher battery_pub = n.advertise<sensor_msgs::BatteryState>("battery",1);
 
-    servo_state_pub = n.advertise<sensor_msgs::JointState>("servo_state",1);
+    servo_state_pub = n.advertise<sensor_msgs::JointState>("servo_state",1,true);
 
     ros::Publisher ultrasonic_pub = n.advertise<sensor_msgs::Range>("ultrasonic",1);
 
