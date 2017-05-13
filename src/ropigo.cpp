@@ -146,10 +146,7 @@ int main(int argc, char **argv) {
     ros::init(argc, argv, "ropigo");
     ros::NodeHandle n;
 
-    int us_pin;
-    if(!n.getParam("us_pin", us_pin)) {
-        ROS_ERROR("Pin for ultrasonic sensor (parameter 'us_pin') not set!");
-    }
+    static const int us_pin = 15;
 
     ros::Subscriber cmd = n.subscribe("cmd_vel", 1, cmdCallback);
     ros::Subscriber servo_sub = n.subscribe("servo_cmd", 1, servoCallback);
