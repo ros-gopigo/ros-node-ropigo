@@ -1,6 +1,7 @@
 #include <ros/ros.h>
 #include <std_msgs/Int16.h>
 #include <std_msgs/Float64.h>
+#include <std_msgs/Bool.h>
 #include <geometry_msgs/Twist.h>
 #include <std_srvs/Trigger.h>
 #include <sensor_msgs/BatteryState.h>
@@ -83,6 +84,14 @@ void servoCallback(const std_msgs::Float64 &servo_angle) {
     servo_state_pub.publish(servo_joint);
 }
 
+void led_left(const std_msgs::Bool &trigger) {
+    led_toggle(LED_L, trigger.data);
+}
+
+void led_right(const std_msgs::Bool &trigger) {
+    led_toggle(LED_R, trigger.data);
+}
+
 bool enc_enable(std_srvs::Trigger::Request &/*req*/, std_srvs::Trigger::Response &res) {
     res.success = (enable_encoders()==1);
     res.message = res.success ? "Encoders enabled" : "Error enabling encoders!";
@@ -141,6 +150,8 @@ int main(int argc, char **argv) {
 
     ros::Subscriber cmd = n.subscribe("cmd_vel", 1, cmdCallback);
     ros::Subscriber servo_sub = n.subscribe("servo_cmd", 1, servoCallback);
+    ros::Subscriber sub_led_left = n.subscribe("led_left", 1, led_left);
+    ros::Subscriber sub_led_right = n.subscribe("led_right", 1, led_right);
 
     ros::Publisher battery_pub = n.advertise<sensor_msgs::BatteryState>("battery",1);
 

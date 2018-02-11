@@ -8,6 +8,7 @@ add_definitions(-std=c++11)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   roscpp
+  std_msgs
   std_srvs
   geometry_msgs
   sensor_msgs
@@ -105,7 +106,7 @@ find_package(gopigo REQUIRED)
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES ropigo
-  CATKIN_DEPENDS geometry_msgs sensor_msgs std_srvs roscpp
+  CATKIN_DEPENDS geometry_msgs std_msgs sensor_msgs std_srvs roscpp
 #  DEPENDS system_lib
 )
 
