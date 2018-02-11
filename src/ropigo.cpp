@@ -2,17 +2,18 @@
 #include <std_msgs/Int16.h>
 #include <std_msgs/Float64.h>
 #include <geometry_msgs/Twist.h>
-#include <ropigo/SimpleWrite.h>
+#include <std_srvs/Trigger.h>
 #include <sensor_msgs/BatteryState.h>
 #include <sensor_msgs/JointState.h>
 #include <sensor_msgs/Range.h>
-#include <angles/angles.h>
 
 extern "C" {
 #include <gopigo.h>
 }
 
-#include <cmath>
+static inline double to_degrees(double radians) {
+  return radians * 180.0 / M_PI;
+}
 
 static ros::Publisher servo_state_pub;
 
@@ -73,7 +74,7 @@ void cmdCallback(const geometry_msgs::Twist::ConstPtr& msg) {
 
 void servoCallback(const std_msgs::Float64 &servo_angle) {
     // set the servo angle
-    servo(int(angles::to_degrees(servo_angle.data)));
+    servo(int(to_degrees(servo_angle.data)));
 
     // publish the same servo angle
     sensor_msgs::JointState servo_joint;
@@ -82,50 +83,40 @@ void servoCallback(const std_msgs::Float64 &servo_angle) {
     servo_state_pub.publish(servo_joint);
 }
 
-bool enc_enable(ropigo::SimpleWrite::Request &/*req*/, ropigo::SimpleWrite::Response &res) {
-    int ret = enable_encoders();
-    res.status = int8_t(ret);
-    if(ret!=1) ROS_WARN("Error enabling encoders!");
-    return ret==1;
+bool enc_enable(std_srvs::Trigger::Request &/*req*/, std_srvs::Trigger::Response &res) {
+    res.success = (enable_encoders()==1);
+    res.message = res.success ? "Encoders enabled" : "Error enabling encoders!";
+    return true;
 }
 
-bool enc_disable(ropigo::SimpleWrite::Request &/*req*/, ropigo::SimpleWrite::Response &res) {
-    int ret = disable_encoders();
-    res.status = int8_t(ret);
-    if(ret!=1) ROS_WARN("Error disabling encoders!");
-    return ret==1;
+bool enc_disable(std_srvs::Trigger::Request &/*req*/, std_srvs::Trigger::Response &res) {
+    res.success = (disable_encoders()==1);
+    res.message = res.success ? "Encoders disabled" : "Error disabling encoders!";
+    return true;
 }
 
-bool led_enable_left(ropigo::SimpleWrite::Request &/*req*/, ropigo::SimpleWrite::Response &res) {
-    int ret = led_on(1);
-    res.status = int8_t(ret);
-    if(ret!=1) ROS_WARN("Error enabling LED left!");
-    else ROS_INFO("Left LED enabled");
-    return ret==1;
+bool led_enable_left(std_srvs::Trigger::Request &/*req*/, std_srvs::Trigger::Response &res) {
+    res.success = (led_on(LED_L)==1);
+    res.message = res.success ? "Left LED enabled" : "Error enabling LED left!";
+    return true;
 }
 
-bool led_enable_right(ropigo::SimpleWrite::Request &/*req*/, ropigo::SimpleWrite::Response &res) {
-    int ret = led_on(0);
-    res.status = int8_t(ret);
-    if(ret!=1) ROS_WARN("Error enabling LED right!");
-    else ROS_INFO("Right LED enabled");
-    return ret==1;
+bool led_enable_right(std_srvs::Trigger::Request &/*req*/, std_srvs::Trigger::Response &res) {
+    res.success = (led_on(LED_R)==1);
+    res.message = res.success ? "Right LED enabled" : "Error enabling LED right!";
+    return true;
 }
 
-bool led_disable_left(ropigo::SimpleWrite::Request &/*req*/, ropigo::SimpleWrite::Response &res) {
-    int ret = led_off(1);
-    res.status = int8_t(ret);
-    if(ret!=1) ROS_WARN("Error disabling LED left!");
-    else ROS_INFO("Left LED disabled");
-    return ret==1;
+bool led_disable_left(std_srvs::Trigger::Request &/*req*/, std_srvs::Trigger::Response &res) {
+    res.success = (led_off(LED_L)==1);
+    res.message = res.success ? "Left LED disabled" : "Error disabling LED left!";
+    return true;
 }
 
-bool led_disable_right(ropigo::SimpleWrite::Request &/*req*/, ropigo::SimpleWrite::Response &res) {
-    int ret = led_off(0);
-    res.status = int8_t(ret);
-    if(ret!=1) ROS_WARN("Error disabling LED right!");
-    else ROS_INFO("Right LED disabled");
-    return ret==1;
+bool led_disable_right(std_srvs::Trigger::Request &/*req*/, std_srvs::Trigger::Response &res) {
+    res.success = (led_off(LED_R)==1);
+    res.message = res.success ? "Right LED disabled" : "Error disabling LED right!";
+    return true;
 }
 
 int main(int argc, char **argv) {
@@ -135,13 +126,13 @@ int main(int argc, char **argv) {
     ROS_INFO("GoPiGo Firmware Version: %d",fw_ver());
     ROS_INFO("GoPiGo Board Version: %d",brd_rev());
 
-    led_on(0);
+    led_on(LED_R);
     usleep(500000);
-    led_on(1);
+    led_on(LED_L);
     usleep(500000);
-    led_off(0);
+    led_off(LED_R);
     usleep(500000);
-    led_off(1);
+    led_off(LED_L);
 
     ros::init(argc, argv, "ropigo");
     ros::NodeHandle n;
@@ -200,8 +191,8 @@ int main(int argc, char **argv) {
         loop.sleep();
     }
 
-    led_off(0);
-    led_off(1);
+    led_off(LED_R);
+    led_off(LED_L);
 
     ROS_INFO("Exit.");
 

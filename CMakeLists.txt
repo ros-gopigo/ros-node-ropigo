@@ -8,7 +8,9 @@ add_definitions(-std=c++11)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   roscpp
-  message_generation
+  std_srvs
+  geometry_msgs
+  sensor_msgs
 )
 
 find_package(gopigo REQUIRED)
@@ -54,10 +56,9 @@ find_package(gopigo REQUIRED)
 # )
 
 ## Generate services in the 'srv' folder
-add_service_files(
-  FILES
-  SimpleWrite.srv
-)
+#add_service_files(
+#  FILES
+#)
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -67,10 +68,10 @@ add_service_files(
 # )
 
 ## Generate added messages and services with any dependencies listed here
-generate_messages(
-  DEPENDENCIES
+#generate_messages(
+#  DEPENDENCIES
 #  geometry_msgs
-)
+#)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -104,7 +105,7 @@ generate_messages(
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES ropigo
-#  CATKIN_DEPENDS geometry_msgs roscpp
+  CATKIN_DEPENDS geometry_msgs sensor_msgs std_srvs roscpp
 #  DEPENDS system_lib
 )
 
@@ -149,7 +150,7 @@ include_directories(
 add_executable(ropigo_node
   src/ropigo.cpp
 )
-add_dependencies(ropigo_node ${PROJECT_NAME}_gencpp)
+#add_dependencies(ropigo_node ${PROJECT_NAME}_gencpp)
 target_link_libraries(ropigo_node
   ${catkin_LIBRARIES}
   ${gopigo_LIBRARIES}
