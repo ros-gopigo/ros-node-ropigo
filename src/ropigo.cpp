@@ -8,6 +8,8 @@
 #include <sensor_msgs/JointState.h>
 #include <sensor_msgs/Range.h>
 
+#include <mutex>
+
 extern "C" {
 #include <gopigo.h>
 }
@@ -15,6 +17,8 @@ extern "C" {
 static inline double to_degrees(double radians) {
   return radians * 180.0 / M_PI;
 }
+
+std::mutex mutex;
 
 static ros::Publisher servo_state_pub;
 
@@ -30,6 +34,7 @@ void cmdCallback(const geometry_msgs::Twist::ConstPtr& msg) {
 
     // ignore small values
     if(mag <= 0.1) {
+        mutex.lock();
         ROS_DEBUG("Not moving");
         if( motor1(0,0)!=1 || motor2(0,0)!=1 ) {
             ROS_WARN("Could not stop!");
@@ -37,6 +42,7 @@ void cmdCallback(const geometry_msgs::Twist::ConstPtr& msg) {
         unsigned char speed[2];
         read_motor_speed(speed);
         ROS_DEBUG("speed %i, %i", speed[0], speed[1]);
+        mutex.unlock();
         return;
     }
 
@@ -60,6 +66,7 @@ void cmdCallback(const geometry_msgs::Twist::ConstPtr& msg) {
 
     ROS_DEBUG("writing values (motor1, motor2): (%i)%i, (%i)%i", std::max(0, int(m1/std::abs(m1))), int(m1*255), std::max(0, int(m2/std::abs(m2))), int(m2*255));
 
+    mutex.lock();
     if( motor1(m1>=0, std::abs(int(m1*255))) != 1 ) {
         ROS_WARN("Error when writing to motor 1");
     }
@@ -70,12 +77,15 @@ void cmdCallback(const geometry_msgs::Twist::ConstPtr& msg) {
 
     unsigned char speed[2];
     read_motor_speed(speed);
+    mutex.unlock();
     ROS_DEBUG("speed %i, %i", speed[0], speed[1]);
 }
 
 void servoCallback(const std_msgs::Float64 &servo_angle) {
     // set the servo angle
+    mutex.lock();
     servo(int(to_degrees(servo_angle.data)));
+    mutex.unlock();
 
     // publish the same servo angle
     sensor_msgs::JointState servo_joint;
@@ -85,45 +95,61 @@ void servoCallback(const std_msgs::Float64 &servo_angle) {
 }
 
 void led_left(const std_msgs::Bool &trigger) {
+    mutex.lock();
     led_toggle(LED_L, trigger.data);
+    mutex.unlock();
 }
 
 void led_right(const std_msgs::Bool &trigger) {
+    mutex.lock();
     led_toggle(LED_R, trigger.data);
+    mutex.unlock();
 }
 
 bool enc_enable(std_srvs::Trigger::Request &/*req*/, std_srvs::Trigger::Response &res) {
+    mutex.lock();
     res.success = (enable_encoders()==1);
+    mutex.unlock();
     res.message = res.success ? "Encoders enabled" : "Error enabling encoders!";
     return true;
 }
 
 bool enc_disable(std_srvs::Trigger::Request &/*req*/, std_srvs::Trigger::Response &res) {
+    mutex.lock();
     res.success = (disable_encoders()==1);
+    mutex.unlock();
     res.message = res.success ? "Encoders disabled" : "Error disabling encoders!";
     return true;
 }
 
 bool led_enable_left(std_srvs::Trigger::Request &/*req*/, std_srvs::Trigger::Response &res) {
+    mutex.lock();
     res.success = (led_on(LED_L)==1);
+    mutex.unlock();
     res.message = res.success ? "Left LED enabled" : "Error enabling LED left!";
     return true;
 }
 
 bool led_enable_right(std_srvs::Trigger::Request &/*req*/, std_srvs::Trigger::Response &res) {
+    mutex.lock();
     res.success = (led_on(LED_R)==1);
+    mutex.unlock();
     res.message = res.success ? "Right LED enabled" : "Error enabling LED right!";
     return true;
 }
 
 bool led_disable_left(std_srvs::Trigger::Request &/*req*/, std_srvs::Trigger::Response &res) {
+    mutex.lock();
     res.success = (led_off(LED_L)==1);
+    mutex.unlock();
     res.message = res.success ? "Left LED disabled" : "Error disabling LED left!";
     return true;
 }
 
 bool led_disable_right(std_srvs::Trigger::Request &/*req*/, std_srvs::Trigger::Response &res) {
+    mutex.lock();
     res.success = (led_off(LED_R)==1);
+    mutex.unlock();
     res.message = res.success ? "Right LED disabled" : "Error disabling LED right!";
     return true;
 }
@@ -180,13 +206,17 @@ int main(int argc, char **argv) {
 
         // battery voltage
         sensor_msgs::BatteryState battery;
+        mutex.lock();
         battery.voltage = volt();
+        mutex.unlock();
         battery_pub.publish(battery);
 
         // wheel encoder
         std_msgs::Int16 lwheel, rwheel;
+        mutex.lock();
         lwheel.data = int16_t(enc_read(0));
         rwheel.data = int16_t(enc_read(1));
+        mutex.unlock();
         lwheel_pub.publish(lwheel);
         rwheel_pub.publish(rwheel);
 
@@ -195,7 +225,9 @@ int main(int argc, char **argv) {
         us_range.header.stamp = time;
         us_range.radiation_type = sensor_msgs::Range::ULTRASOUND;
         // ultrasonic distance from cm in meter
+        mutex.lock();
         us_range.range = us_dist(us_pin) / 100.0f;
+        mutex.unlock();
         ultrasonic_pub.publish(us_range);
 
         ros::spinOnce();
